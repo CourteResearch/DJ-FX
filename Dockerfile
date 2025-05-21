@@ -5,10 +5,12 @@ FROM python:3.10-slim-buster
 WORKDIR /app
 
 # Install system dependencies required for audio processing (ffmpeg)
-# and other build tools
+# and other build tools, including Python development headers for numpy/scipy
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     build-essential \
+    python3-dev \
+    libatlas-base-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the backend requirements file into the container
