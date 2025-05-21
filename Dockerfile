@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y \
 COPY backend/requirements.txt .
 
 # Install Python dependencies
+# Upgrade pip, setuptools, and wheel first
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
 # Install Cython first as it's a build dependency for some packages (e.g., madmom)
 RUN pip install --no-cache-dir Cython
 
