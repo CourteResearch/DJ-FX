@@ -212,6 +212,13 @@ const Home = () => {
               </audio>
               <div className="mt-2 text-sm text-gray-500">
                 <p>Duration: {Math.floor(currentMix.duration / 60)}:{String(Math.floor(currentMix.duration % 60)).padStart(2, "0")}</p>
+                <a 
+                  href={`${API}/mixes/${currentMix.id}/stream`} 
+                  download={`${currentMix.title}.mp3`}
+                  className="inline-block mt-2 px-4 py-2 bg-violet-600 text-white rounded-md hover:bg-violet-700 transition-colors"
+                >
+                  Download Mix
+                </a>
               </div>
             </div>
           )}

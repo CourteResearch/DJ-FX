@@ -366,7 +366,8 @@ async def create_mix(mix_request: MixRequest, background_tasks: BackgroundTasks)
     """Create a new DJ mix with the specified parameters"""
     try:
         # Find tracks for the mix
-        track_data = track_finder.search_by_genre(mix_request.genre, max_results=10)
+        # Increased max_results to find more available tracks
+        track_data = track_finder.search_by_genre(mix_request.genre, max_results=50)
         
         # Create Track objects and save to DB
         tracks = []
