@@ -1,48 +1,59 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-.idea/
-dist
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-.vscode
-# testing
-/coverage
-dump.rdb
-chainlit.md
-.chainlit
-# next.js
-/.next/
-/out/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
 .ipynb_checkpoints/
-# production
-/build
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Node.js
+node_modules/
+.pnp/
+.pnp.js
+build/
+dist/
+tmp/
+.cache/
+.parcel-cache/
+.next/
+out/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# For yarn v2 or above
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.yml
+.pnp.*
 
-# local env files
-# .env*.local
-*token.json*
-# vercel
-.vercel
+# Environment variables
+.env
+.env.*
+!.env.example # Keep example file
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-*pyc*
-#*.env
-.ac
-agenthub/agents/youtube/db
-*credentials.json*
+# OS generated files
+.DS_Store
+.Trashes
+Thumbs.db
+ehthumbs.db
+*.stackdump
 
-venv/
-.venv/
-__pycache__/
+# IDE specific files
+.vscode/
+.idea/
+
+# Temporary files created by the app
+/tmp/autodj/
+/tmp/autodj/mixes/
+backend_test_results.log
+test_result.md

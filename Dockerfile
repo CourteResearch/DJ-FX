@@ -1,39 +1,34 @@
-# Stage 1: Build React App
-FROM node:20 AS frontend-build
-ARG FRONTEND_ENV
-ENV FRONTEND_ENV=${FRONTEND_ENV}
-WORKDIR /app
-COPY frontend/ /app/
-RUN rm /app/.env
-RUN touch /app/.env
-RUN echo "${FRONTEND_ENV}" | tr ',' '\n' > /app/.env
-RUN cat /app/.env
-RUN yarn install --frozen-lockfile && yarn build
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim-buster
 
-# Stage 2: Install Python Backend
-FROM python:3.11-slim as backend
+# Set the working directory in the container
 WORKDIR /app
-COPY backend/ /app/
-RUN rm /app/.env
+
+# Install system dependencies required for audio processing (ffmpeg)
+# and other build tools
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the backend requirements file into the container
+COPY backend/requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 3: Final Image
-FROM nginx:stable-alpine
-# Copy built frontend
-COPY --from=frontend-build /app/build /usr/share/nginx/html
-# Copy backend
-COPY --from=backend /app /backend
-# Copy nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copy the entire backend application code into the container
+COPY backend/ .
 
-# Install Python and dependencies
-RUN apk add --no-cache python3 py3-pip \
-    && pip3 install --break-system-packages -r /backend/requirements.txt
+# Expose the port the app runs on
+EXPOSE 8000
 
-# Add env variables if needed
-ENV PYTHONUNBUFFERED=1
+# Define environment variables for MongoDB connection
+# These should be set in Render's environment variables, not hardcoded here.
+# For local testing, you might use .env.example values.
+# ENV MONGO_URL="your_mongo_uri"
+# ENV DB_NAME="your_db_name"
 
-# Start both services: Uvicorn and Nginx
-CMD ["/entrypoint.sh"]
+# Command to run the application
+# Uvicorn will serve the FastAPI app defined in server.py
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
