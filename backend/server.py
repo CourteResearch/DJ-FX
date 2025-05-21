@@ -115,12 +115,21 @@ class TrackFinder:
                 if entry is None:
                     continue
                     
+                # Filter out unavailable or problematic entries early
+                if entry.get('live_status') == 'is_live' or entry.get('duration') is None:
+                    continue # Skip live streams or videos without duration
+
+                # Filter by duration: e.g., between 3 minutes (180s) and 60 minutes (3600s)
+                duration = entry.get('duration')
+                if duration is None or not (180 <= duration <= 3600):
+                    continue
+                    
                 track = {
                     'title': entry.get('title', 'Unknown Title'),
                     'artist': entry.get('uploader', 'Unknown Artist'),
                     'genre': genre,
                     'source_url': f"https://www.youtube.com/watch?v={entry['id']}",
-                    'duration': entry.get('duration')
+                    'duration': duration
                 }
                 tracks.append(track)
                 
@@ -140,6 +149,9 @@ class TrackFinder:
                 'preferredquality': '192',
             }],
             'quiet': True,
+            'retries': 5, # Retry downloads up to 5 times
+            'geo_bypass': True, # Attempt to bypass geographic restrictions
+            'nocheckcertificate': True, # Ignore SSL certificate validation errors
         }
         
         try:
