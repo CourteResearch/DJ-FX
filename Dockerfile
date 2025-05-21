@@ -15,6 +15,10 @@ RUN apt-get update && apt-get install -y \
 COPY backend/requirements.txt .
 
 # Install Python dependencies
+# Install Cython first as it's a build dependency for some packages (e.g., madmom)
+RUN pip install --no-cache-dir Cython
+
+# Install the rest of the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire backend application code into the container
