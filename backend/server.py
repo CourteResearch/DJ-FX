@@ -381,6 +381,10 @@ async def create_mix(mix_request: MixRequest, background_tasks: BackgroundTasks)
         # Increased max_results to find more available tracks
         track_data = track_finder.search_by_genre(mix_request.genre, max_results=50)
         
+        # Shuffle the track_data to introduce variety in mix creation
+        import random
+        random.shuffle(track_data)
+
         # Create Track objects and save to DB
         tracks = []
         for track_info in track_data:
@@ -448,6 +452,32 @@ async def stream_mix(mix_id: str):
         raise HTTPException(status_code=400, detail="Mix is not ready for streaming")
     
     return FileResponse(mix_obj.file_path, media_type="audio/mpeg")
+
+@api_router.delete("/mixes/{mix_id}")
+async def delete_mix(mix_id: str):
+    """Delete a mix and its associated file"""
+    mix = await db.mixes.find_one({"id": mix_id})
+    if not mix:
+        raise HTTPException(status_code=404, detail="Mix not found")
+    
+    mix_obj = Mix(**mix)
+    
+    # Delete the associated audio file if it exists
+    if mix_obj.file_path and Path(mix_obj.file_path).exists():
+        try:
+            os.remove(mix_obj.file_path)
+            logger.info(f"Deleted mix file: {mix_obj.file_path}")
+        except OSError as e:
+            logger.error(f"Error deleting mix file {mix_obj.file_path}: {e}")
+            # Don't raise HTTPException, just log, as the DB record can still be deleted
+    
+    # Delete the mix record from the database
+    delete_result = await db.mixes.delete_one({"id": mix_id})
+    
+    if delete_result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Mix not found in DB after file deletion attempt")
+    
+    return {"message": f"Mix {mix_id} and its file deleted successfully"}
 
 # Include the router in the main app
 app.include_router(api_router)

@@ -74,6 +74,25 @@ const Home = () => {
       console.error("Failed to check mix status:", error);
     }
   };
+
+  const handleDeleteMix = async (e, mixIdToDelete) => {
+    e.stopPropagation(); // Prevent triggering onClick on the parent div
+    setLoading(true);
+    setError(null);
+
+    try {
+      await axios.delete(`${API}/mixes/${mixIdToDelete}`);
+      fetchMixes(); // Refresh the list of mixes
+      if (currentMix && currentMix.id === mixIdToDelete) {
+        setCurrentMix(null); // Clear current mix if it was deleted
+      }
+    } catch (error) {
+      console.error("Failed to delete mix:", error);
+      setError("Failed to delete mix. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const createMix = async () => {
     setLoading(true);
@@ -185,15 +204,26 @@ const Home = () => {
                       <h3 className="font-medium">{mix.title}</h3>
                       <p className="text-sm text-gray-500">Genre: {mix.genre}</p>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      mix.status === "completed" 
-                        ? "bg-green-100 text-green-800" 
-                        : mix.status === "processing" 
-                        ? "bg-yellow-100 text-yellow-800" 
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
-                      {mix.status}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        mix.status === "completed" 
+                          ? "bg-green-100 text-green-800" 
+                          : mix.status === "processing" 
+                          ? "bg-yellow-100 text-yellow-800" 
+                          : "bg-gray-100 text-gray-800"
+                      }`}>
+                        {mix.status}
+                      </span>
+                      <button
+                        onClick={(e) => handleDeleteMix(e, mix.id)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                        title="Delete Mix"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
